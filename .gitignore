@@ -1,0 +1,10 @@
+# Ignore compiled executables
+main
+
+# Ignore object files
+*.o
+
+# Ignore other temporary or generated files
+*.out
+*.exe
+
