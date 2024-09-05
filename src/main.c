@@ -97,13 +97,58 @@ void stackPop(struct stack* stackPtr, unsigned char item){
 
 }
 
+static SDL_Renderer* initSDL(SDL_Window** window, SDL_Texture** texture){
+ 
+    SDL_Renderer* renderer = NULL;
+
+    
+    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+        printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
+        return NULL;
+    }
+
+    
+    SDL_CreateWindowAndRenderer(SCREEN_WIDTH, SCREEN_HEIGHT, 0, window, &renderer);
+        
+
+    *texture = SDL_CreateTexture(renderer,
+                                 SDL_PIXELFORMAT_RGBA8888,
+                                 SDL_TEXTUREACCESS_TARGET,
+                                 VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
+
+
+
+    // Set the render target to the texture to draw the background
+    SDL_SetRenderTarget(renderer, *texture);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Black background
+    SDL_RenderClear(renderer);
+
+    
+    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255); // Retro green color
+    SDL_SetRenderTarget(renderer, NULL); // Reset to the window
+    
+    return renderer; 
+
+}
+
 int main(){
 
     
     unsigned char* memory = malloc(MEMORY_SIZE * sizeof(unsigned char));
     struct stack* stackPtr = stackInit(STACK_SIZE);
     readAndLoadROMFile(memory);
+
+    SDL_Window* window = NULL;
+    SDL_Texture* texture = NULL;
+
+    // Initialize SDL and get the renderer
+    SDL_Renderer* renderer = initSDL(&window, &texture);
     
+
+    SDL_DestroyTexture(texture);
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
 
     free(stackPtr->itemArray);
     free(stackPtr);

@@ -26,3 +26,20 @@ struct stack{
 
 #define MEMORY_SIZE 4096
 #define ROM_START_ADDRESS 0x200
+#define STACK_SIZE 16
+#define FIRST_DIGIT_MASK 0xF000
+
+const int SCREEN_WIDTH = 640;   // Window size width
+const int SCREEN_HEIGHT = 320;  // Window size height
+const int VIRTUAL_WIDTH = 64;   // Emulator screen width
+const int VIRTUAL_HEIGHT = 32;  // Emulator screen height
+
+unsigned char delay_timer;
+unsigned char sound_timer;
+
+unsigned short I;
+unsigned short pc = 0x200;
+
+unsigned char reg[16];
+unsigned short opcode;
+
