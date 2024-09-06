@@ -33,11 +33,20 @@ static inline void set_index_register_I_ANNN(unsigned short opcode){
 static inline void display_or_draw_DXYN(unsigned short opcode, SDL_Renderer* renderer){
     /*Draw N pixel tall sprite from memory location that I
     is holding to screen, at horizontal X in VX and Y coordinate in VY*/
-    unsigned char second_nibble = (opcode >> 4) & 0x0F;
-    unsigned char third_nibble = (opcode >> 8) & 0x0F;
-    unsigned char fourth_nibble = (opcode >> 12) & 0x0F;
+    unsigned char X = (opcode >> 4) & 0x0F;
+    unsigned char Y= (opcode >> 8) & 0x0F;
+    unsigned char N = (opcode >> 12) & 0x0F;
 
-    unsigned char X = reg[second_nibble];
-    unsigned char Y = reg[third_nibble];
+    unsigned char regX = reg[X] % 64;
+    unsigned char regY = reg[Y] % 32;
+    VF_REG = '0';
+
+    for (unsigned short i = 0; i <= N; i++)
+    {
+        unsigned char sprite_data = chip8_fontset[I + i];
+    }
+    
+
+    //SDL_RenderDrawPoint(renderer, 300, 200);
 
 }
