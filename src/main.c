@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <SDL2/SDL.h>
 #include <main.h>
 
 
@@ -129,6 +128,14 @@ static SDL_Renderer* initSDL(SDL_Window** window, SDL_Texture** texture){
     
     return renderer; 
 
+}
+
+void gameLoop(SDL_Renderer* renderer, struct stack* stackPtr, unsigned char* memory){
+
+    for(;;){
+
+        
+    }
 }
 
 int main(){

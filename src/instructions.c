@@ -35,16 +35,26 @@ static inline void display_or_draw_DXYN(unsigned short opcode, SDL_Renderer* ren
     is holding to screen, at horizontal X in VX and Y coordinate in VY*/
     unsigned char X = (opcode >> 4) & 0x0F;
     unsigned char Y= (opcode >> 8) & 0x0F;
-    unsigned char N = (opcode >> 12) & 0x0F;
+    unsigned char height = (opcode >> 12) & 0x0F;
 
     unsigned char regX = reg[X] % 64;
     unsigned char regY = reg[Y] % 32;
-    VF_REG = '0';
+    unsigned char pixel;
+    reg[0xF] = '0';
 
-    for (unsigned short i = 0; i <= N; i++)
-    {
-        unsigned char sprite_data = chip8_fontset[I + i];
-    }
+   for(int yline = 0; yline < height; yline++)
+   {
+    pixel = memory[I + yline];
+    for(int xline = 0; xline < 8; xline++)
+     {
+       if((pixel & (0x80 >> xline)) != 0)
+       {
+        if(gfx[(X + xline + ((Y + yline) * 64))] == 1)
+           reg[0xF] = 1;                                 
+         gfx[X + xline + ((Y + yline) * 64)] ^= 1;
+       }
+     }
+   }
     
 
     //SDL_RenderDrawPoint(renderer, 300, 200);
