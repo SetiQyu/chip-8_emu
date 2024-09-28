@@ -5,20 +5,26 @@
 
 
 
-void clear_screen_00E0(SDL_Renderer* renderer){
-
+void clear_screen_00E0(SDL_Renderer* renderer, unsigned char* gfx) {
+    /*
     // Set the draw color to black (R:0, G:0, B:0, A:255)
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     // Clear the screen
     SDL_RenderClear(renderer);
     // Present the renderer
     SDL_RenderPresent(renderer);
-    //Set color back
-    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255); // Retro green color
+    */
+   for (size_t i = 0; i < 64*32; i++)
+   {
+        gfx[i] = 0;
+   }
+   
+
+    draw_flag = TRUE;
 }
 
-void jump_1NNN(unsigned short opcode){
-    pc = opcode & 0x0FFF;
+void jump_1NNN(unsigned short opcode, int* pc){
+    *pc = (int)(opcode & 0x0FFF);
 }
 
 void set_register_VX_6XNN(unsigned short opcode){
@@ -33,7 +39,7 @@ void set_index_register_I_ANNN(unsigned short opcode){
 
 }
 
-void display_or_draw_DXYN(unsigned short opcode, SDL_Renderer* renderer){
+void display_or_draw_DXYN(unsigned short opcode, SDL_Renderer* renderer, unsigned char* gfx, unsigned char* memory){
     /*Draw N pixel tall sprite from memory location that I
     is holding to screen, at horizontal X in VX and Y coordinate in VY*/
     unsigned char X = (opcode >> 4) & 0x0F;

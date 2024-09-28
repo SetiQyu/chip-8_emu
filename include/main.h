@@ -1,24 +1,6 @@
 #include <SDL2/SDL.h>
 
-unsigned char chip8_fontset[80] =
-{ 
-  0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
-  0x20, 0x60, 0x20, 0x20, 0x70, // 1
-  0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
-  0xF0, 0x10, 0xF0, 0x10, 0xF0, // 3
-  0x90, 0x90, 0xF0, 0x10, 0x10, // 4
-  0xF0, 0x80, 0xF0, 0x10, 0xF0, // 5
-  0xF0, 0x80, 0xF0, 0x90, 0xF0, // 6
-  0xF0, 0x10, 0x20, 0x40, 0x40, // 7
-  0xF0, 0x90, 0xF0, 0x90, 0xF0, // 8
-  0xF0, 0x90, 0xF0, 0x10, 0xF0, // 9
-  0xF0, 0x90, 0xF0, 0x90, 0x90, // A
-  0xE0, 0x90, 0xE0, 0x90, 0xE0, // B
-  0xF0, 0x80, 0x80, 0x80, 0xF0, // C
-  0xE0, 0x90, 0x90, 0x90, 0xE0, // D
-  0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
-  0xF0, 0x80, 0xF0, 0x80, 0x80  // F
-};
+extern unsigned char chip8_fontset[80]; 
 
 struct stack{
     unsigned char* itemArray;
@@ -34,19 +16,19 @@ struct stack{
 #define FALSE 0
 #define PIXEL_SIZE 10
 
-const int SCREEN_WIDTH = 640;   // Window size width
-const int SCREEN_HEIGHT = 320;  // Window size height
-const int VIRTUAL_WIDTH = 64;   // Emulator screen width
-const int VIRTUAL_HEIGHT = 32;  // Emulator screen height
+extern const int SCREEN_WIDTH; // Window size width
+extern const int SCREEN_HEIGHT;  // Window size height
+extern const int VIRTUAL_WIDTH;   // Emulator screen width
+extern const int VIRTUAL_HEIGHT;   // Emulator screen height
 
-extern unsigned char delay_timer;
-extern unsigned char sound_timer;
+extern int delay_timer;
+extern int sound_timer;
 extern unsigned char* memory;
 extern unsigned char* gfx;
 extern int draw_flag;
 
 extern unsigned short I;
-unsigned short pc = 0x200;
+extern int* pc;
 
 extern unsigned char reg[16];
 extern unsigned short opcode;

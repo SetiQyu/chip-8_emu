@@ -7,6 +7,40 @@
 
 
 
+int delay_timer = 0;
+int sound_timer = 0;
+int draw_flag = FALSE;
+unsigned short I = 0;
+unsigned char reg[16];
+
+int* pc;
+
+
+
+const int SCREEN_WIDTH = 640;   // Window size width
+const int SCREEN_HEIGHT = 320;  // Window size height
+const int VIRTUAL_WIDTH = 64;   // Emulator screen width
+const int VIRTUAL_HEIGHT = 32;  // Emulator screen height
+
+unsigned char chip8_fontset[80] =
+{ 
+  0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
+  0x20, 0x60, 0x20, 0x20, 0x70, // 1
+  0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
+  0xF0, 0x10, 0xF0, 0x10, 0xF0, // 3
+  0x90, 0x90, 0xF0, 0x10, 0x10, // 4
+  0xF0, 0x80, 0xF0, 0x10, 0xF0, // 5
+  0xF0, 0x80, 0xF0, 0x90, 0xF0, // 6
+  0xF0, 0x10, 0x20, 0x40, 0x40, // 7
+  0xF0, 0x90, 0xF0, 0x90, 0xF0, // 8
+  0xF0, 0x90, 0xF0, 0x10, 0xF0, // 9
+  0xF0, 0x90, 0xF0, 0x90, 0x90, // A
+  0xE0, 0x90, 0xE0, 0x90, 0xE0, // B
+  0xF0, 0x80, 0x80, 0x80, 0xF0, // C
+  0xE0, 0x90, 0x90, 0x90, 0xE0, // D
+  0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
+  0xF0, 0x80, 0xF0, 0x80, 0x80  // F
+};
 
 
 int loadROM(char* filename, unsigned char* memory){
@@ -35,10 +69,12 @@ int loadROM(char* filename, unsigned char* memory){
         fclose(file);
         return -1;
     }
-
+    //Move to more sensible spot?
+    for(int i = 0; i < 80; ++i)
+        memory[i] = chip8_fontset[i];	
 
     for (size_t i = 0; i < fileSize; ++i) {
-        memory[ROM_START_ADDRESS + i] = buffer[i];
+        memory[512 + i] = buffer[i];
     }
 
     free(buffer);
@@ -62,7 +98,7 @@ void readAndLoadROMFile(unsigned char* memory){
         printf("Input error");
 
     //DEBUG PATH
-    strcpy(input, "/home/leo/Desktop/chip8/roms/IBM Logo.ch8");
+    strcpy(input, "/home/leolundberg/code/chip-8_emu/roms/IBM Logo.ch8");
     loadROM(input, memory);
     printf("Debug: %s\n", input);
     free(input);
@@ -132,7 +168,7 @@ static SDL_Renderer* initSDL(SDL_Window** window, SDL_Texture** texture){
 
 }
 
-void readAndExecOpCode(unsigned short opcode, SDL_Renderer* renderer){
+void readAndExecOpCode(unsigned short opcode, SDL_Renderer* renderer, unsigned char* gfx, unsigned char* memory, unsigned int* pc){
 
 
     // Decode opcode
@@ -141,23 +177,22 @@ void readAndExecOpCode(unsigned short opcode, SDL_Renderer* renderer){
         case 0x0000:
             switch(opcode & 0x000F)
             {
-            case 0x0000: // 0x00E0: Clears the screen        
-                // Execute opcode
-                clear_screen_00E0(renderer);
-                
-            break;
-        
-            case 0x000E: // 0x00EE: Returns from subroutine          
-                // Execute opcode
-            break;
-        
-            default:
-                printf ("Unknown opcode [0x0000]: 0x%X\n", opcode);   
-                break;       
+                case 0x0000: // 0x00E0: Clears the screen        
+                    // Execute opcode
+                    clear_screen_00E0(renderer, gfx);
+                    break;
+            
+                case 0x000E: // 0x00EE: Returns from subroutine          
+                    // Execute opcode
+                    break;
+            
+                default:
+                    //printf ("Unknown opcode [0x0000]: 0x%X\n", opcode);   
+                    break;       
             }
 
         case 0x1000: //0x1NNN
-            jump_1NNN(opcode);
+            jump_1NNN(opcode, pc);
             break;
         case 0x6000:
             set_register_VX_6XNN(opcode);
@@ -169,12 +204,13 @@ void readAndExecOpCode(unsigned short opcode, SDL_Renderer* renderer){
             set_index_register_I_ANNN(opcode);
             break;
         case 0xD000:
-            display_or_draw_DXYN(opcode, renderer);
+            printf("entered here");
+            display_or_draw_DXYN(opcode, renderer, gfx, memory);
             break;
         
         // more opcodes //
         default:
-            printf ("Unknown opcode: 0x%X\n", opcode);
+            //printf ("Unknown opcode: 0x%X\n", opcode);
             break;
     }
 
@@ -218,17 +254,30 @@ void drawScreen(SDL_Renderer* renderer, unsigned char* gfx){
 
 void gameLoop(SDL_Renderer* renderer, struct stack* stackPtr, unsigned char* memory, unsigned char* gfx){
 
-    int pc = 0x200;
-    int delay_timer = 0;
-    int sound_timer = 0;
-    int draw_flag = FALSE;
-    unsigned short I;
+
+    
+    pc = malloc(sizeof(int));
+    *pc = 512;
+    int dumb = TRUE;
 
     for(;;){
 
-        unsigned short opcode = (memory[pc] << 8) | memory[pc + 1];
-        pc += 2;
-        readAndExecOpCode(opcode, renderer);
+        unsigned short opcode = (memory[*pc] << 8) | memory[(*pc) + 1];
+        
+        
+        if(dumb){
+            printf("%02X ", memory[*pc]);
+            printf("%02X ", memory[(*pc) + 1]);
+
+            printf("Complete opcode: 0x%04X\n", opcode); // Use %04X to ensure 4 digits
+            printf("PC: %u\n", *pc);
+            dumb = FALSE;
+
+        }
+        
+
+        *pc += 2;   
+        readAndExecOpCode(opcode, renderer, gfx, memory, pc);
 
         if(delay_timer > 0)
             --delay_timer;
