@@ -8,14 +8,14 @@
 			"args": [
 				"-fdiagnostics-color=always",
 				"-g",
-				"${file}",
+				"${workspaceFolder}/src/main.c",  // Explicitly include main.c
+				"${workspaceFolder}/src/instructions.c",  // Include other source files as needed
 				"-o",
-				"${fileDirname}/${fileBasenameNoExtension}",
+				"${workspaceFolder}/bin/main",  // Output to workspaceFolder/bin/main
 				"-I${workspaceFolder}/include",
 				"-I/usr/include/SDL2",
-                "-D_REENTRANT",
-                "-lSDL2"
-          
+				"-D_REENTRANT",
+				"-lSDL2"
 			],
 			"options": {
 				"cwd": "${fileDirname}"
